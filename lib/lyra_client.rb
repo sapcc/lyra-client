@@ -95,7 +95,10 @@ module LyraClient
             instantiate_collection(request('get', path, headers))
           else
             path = singelton_path(scope, options)
-            instantiate_record(request('get', path, headers).data.fetch(:body, {}))
+            response = request('get', path, headers)
+            body = response.data.fetch(:body, "{}") unless response.nil?
+            record = JSON.parse(body)
+            instantiate_record(record)
         end
       end
 
@@ -140,6 +143,10 @@ module LyraClient
     def initialize(attributes = {}, persisted = false)
       @attributes = attributes
       @persisted = persisted
+    end
+
+    def save
+
     end
 
   end

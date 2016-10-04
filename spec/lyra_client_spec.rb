@@ -59,7 +59,7 @@ describe LyraClient do
           it "should get all" do
             all = LyraClientTestFindClass.all({"X-Auth-Token" => 'this_is_a_token'})
             all.each_with_index do |element, index|
-              expect(element.attributes.to_json).to be == @elements[index].to_json
+              expect(element.attributes).to be == @elements[index]
             end
           end
 
@@ -74,7 +74,7 @@ describe LyraClient do
 
           it "should find one" do
             one = LyraClientTestFindClass.find("3", {"X-Auth-Token" => '3eb2d7b9d99f41a388cd3eab7c070011'})
-            expect(one.attributes).to be == @element.to_json
+            expect(one.attributes).to be == @element
           end
 
         end
