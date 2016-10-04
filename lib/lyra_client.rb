@@ -92,10 +92,10 @@ module LyraClient
         case scope
           when :all   then
             path = collection_path(options)
-            instantiate_collection(request('get', path, headers).body)
+            instantiate_collection(request('get', path, headers))
           else
             path = singelton_path(scope, options)
-            instantiate_record(request('get', path, headers).body)
+            instantiate_record(request('get', path, headers).data.fetch(:body, {}))
         end
       end
 
@@ -111,13 +111,8 @@ module LyraClient
         new(record, true)
       end
 
-      def instantiate_collection(records)
-        records_hash = JSON.parse(records)
-        collection = []
-        records_hash.each do |attr|
-          collection << new(attr, true)
-        end
-        collection
+      def instantiate_collection(response)
+        Collection.new(response).collect!
       end
 
       def query_string(options)
@@ -147,6 +142,39 @@ module LyraClient
       @persisted = persisted
     end
 
+  end
+
+  class Collection
+    include Enumerable
+
+    attr_accessor :elements
+    attr_reader :response
+
+    def initialize(response = nil)
+      @response = response
+    end
+
+    def to_a
+      @elements
+    end
+
+    def <<(val)
+      @elements << val
+    end
+
+    def each(&block)
+      @elements.each(&block)
+    end
+
+    def collect!
+      # set the elemets
+      set = []
+      body = @response.data.fetch(:body, "[]") unless @response.nil?
+      records = JSON.parse(body)
+      records.each { |record| set <<  Base::instantiate_record(record)}
+      @elements = set
+      self
+    end
 
   end
 

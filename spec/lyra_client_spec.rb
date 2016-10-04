@@ -1,10 +1,7 @@
 require "spec_helper"
+require 'fakefactory'
 
 describe LyraClient do
-
-  before(:all) do
-    Excon.defaults[:mock] = true
-  end
 
   it "has a version number" do
     expect(LyraClient::VERSION).not_to be nil
@@ -28,7 +25,6 @@ describe LyraClient do
       describe "collection path with prefix" do
 
         class LyraClientTestClass < LyraClient::Base
-          # self.site = "https://lyra-app/api/v1"
           self.collection_name = 'automations'
         end
 
@@ -55,17 +51,13 @@ describe LyraClient do
 
         describe "all" do
 
-          before(:all) do
-            @elements = [{test: 'test'}]
+          before(:each) do
+            @elements = [FakeFactory.automation('id' => 1)]
             Excon.stub({}, {:body => @elements.to_json, :status => 200})
           end
 
-          after(:all) do
-            Excon.stubs.clear
-          end
-
           it "should get all" do
-            all = LyraClientTestFindClass.all({"X-Auth-Token" => 'd4e2f9461ef14137b055d1668758c9ca'})
+            all = LyraClientTestFindClass.all({"X-Auth-Token" => 'this_is_a_token'})
             all.each_with_index do |element, index|
               expect(element.attributes.to_json).to be == @elements[index].to_json
             end
@@ -75,17 +67,13 @@ describe LyraClient do
 
         describe "single" do
 
-          before(:all) do
-            @element = {test: 'test'}
+          before(:each) do
+            @element = FakeFactory.automation('id' => 1)
             Excon.stub({}, {:body => @element.to_json, :status => 200})
           end
 
-          after(:all) do
-            Excon.stubs.clear
-          end
-
           it "should find one" do
-            one = LyraClientTestFindClass.find("3", {"X-Auth-Token" => 'd4e2f9461ef14137b055d1668758c9ca'})
+            one = LyraClientTestFindClass.find("3", {"X-Auth-Token" => '3eb2d7b9d99f41a388cd3eab7c070011'})
             expect(one.attributes).to be == @element.to_json
           end
 
@@ -96,6 +84,45 @@ describe LyraClient do
     end
 
     describe "object methods" do
+
+    end
+
+  end
+
+  describe "collection" do
+
+    describe "Access to response headers" do
+
+      class LyraClientTestCollectionClass < LyraClient::Base
+        self.site = "https://lyra-app/api/v1"
+        self.collection_name = 'automations'
+      end
+
+      before(:each) do
+        @elements = [FakeFactory.automation('id' => 1), FakeFactory.automation('id' => 2)]
+        Excon.stub({}, {:body => @elements.to_json, :status => 200})
+      end
+
+      it "should return a collection class" do
+        all = LyraClientTestCollectionClass.all({"X-Auth-Token" => 'aa5c1921d9cc4afd90a2892f2e90017f'})
+        expect(all).to be_instance_of(LyraClient::Collection)
+      end
+
+      it "should have access to the the response" do
+        all = LyraClientTestCollectionClass.all({"X-Auth-Token" => 'aa5c1921d9cc4afd90a2892f2e90017f'})
+        expect(all.response).to be_truthy
+      end
+
+      it "should iterate" do
+        all = LyraClientTestCollectionClass.all({"X-Auth-Token" => 'aa5c1921d9cc4afd90a2892f2e90017f'})
+        expect(all.count).to be == 2
+        iterator = 0
+        all.each do |item|
+          iterator += 1
+          expect(item).to be_truthy
+        end
+        expect(iterator).to be == 2
+      end
 
     end
 
