@@ -97,9 +97,12 @@ module LyraClient
             path = singelton_path(scope, options)
             response = request('get', path, headers)
             body = response.data.fetch(:body, "{}") unless response.nil?
-            record = JSON.parse(body)
-            instantiate_record(record)
+            new(response, JSON.parse(body), true)
         end
+      end
+
+      def instantiate_collection(response)
+        Collection.new(response).collect! { |record| new(response, record, true) }
       end
 
       def singelton_path(id, query_options = nil)
@@ -110,19 +113,11 @@ module LyraClient
         "#{path_prefix}/#{collection_name}#{query_string(query_options)}"
       end
 
-      def instantiate_record(record)
-        new(record, true)
-      end
-
-      def instantiate_collection(response)
-        Collection.new(response).collect!
-      end
-
       def query_string(options)
         "?#{options.to_query}" unless options.nil? || options.empty?
       end
 
-      def request(method, path, headers = {})
+      def request(method, path, headers = {}, body = "")
         # collect headers
         req_headers = {'Content-Type' => 'application/json'}
         headers.each do |key, value|
@@ -130,23 +125,47 @@ module LyraClient
         end
         # request
         connection.request(
+          :expects => [200, 201],
           :method => method,
           :path => path,
-          :headers => req_headers
+          :headers => req_headers,
+          :body => body
         )
       end
 
     end
 
     attr_accessor :attributes
+    attr_reader :response
 
-    def initialize(attributes = {}, persisted = false)
+    def initialize(response = nil, attributes = {}, persisted = false)
+      @response = response
       @attributes = attributes
       @persisted = persisted
     end
 
-    def save
+    def save(*arguments)
+      headers = arguments.slice!(0) || {}
+      options = arguments.slice!(0) || {}
 
+      if @persisted
+        # update
+
+      else
+        # create
+        create(headers, options)
+      end
+    end
+
+    def create(headers = {}, options = {})
+      path = self.class.collection_path(options)
+      response = self.class.request('post', path, headers, attributes.to_json)
+      body = response.body
+      record = JSON.parse(body)
+      self.attributes['id'] = record['id']
+    end
+
+    def update
     end
 
   end
@@ -173,14 +192,38 @@ module LyraClient
       @elements.each(&block)
     end
 
+    def empty?
+      @elements.empty?
+    end
+
     def collect!
-      # set the elemets
+      return elements unless block_given?
       set = []
-      body = @response.data.fetch(:body, "[]") unless @response.nil?
+      body = @response.body unless @response.nil?
       records = JSON.parse(body)
-      records.each { |record| set <<  Base::instantiate_record(record)}
+      records.each { |o| set << yield(o) }
       @elements = set
       self
+    end
+
+    def total_pages
+      total_elements = @response.nil? ? 0 : @response.headers.fetch('Pagination-Elements', "").to_i
+      if limit_value != 0
+        total = total_elements / limit_value
+        if total_elements % limit_value > 0
+          total += 1
+        end
+        return total
+      end
+      return 0
+    end
+
+    def current_page
+      @response.headers.fetch('Pagination-Page', "").to_i
+    end
+
+    def limit_value
+      @response.headers.fetch('Pagination-Per-Page', "").to_i
     end
 
   end

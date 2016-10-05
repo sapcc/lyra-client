@@ -1,8 +1,7 @@
 class FakeFactory
 
   def self.automation(params = {})
-    {"id"=>42,
-     "type"=>"Chef",
+    {"type"=>"Chef",
      "name"=>"test",
      "project_id"=>"1d1ad583e98c4913a0226feac0f010f9",
      "repository"=>"http://adfadf.com",

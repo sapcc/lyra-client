@@ -4,7 +4,7 @@ $LOAD_PATH.unshift(lib) unless $LOAD_PATH.include?(lib)
 require 'lyra_client/version'
 
 Gem::Specification.new do |spec|
-  spec.name          = "lyra_client"
+  spec.name          = "lyra-client"
   spec.version       = LyraClient::VERSION
   spec.authors       = ["Arturo Reuschenbach Puncernau"]
   spec.email         = ["a.reuschenbach.puncernau@sap.com"]
