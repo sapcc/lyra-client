@@ -117,18 +117,21 @@ module LyraClient
         "?#{options.to_query}" unless options.nil? || options.empty?
       end
 
+      def collect_headers(req_headers = {})
+        collect_headers = {'Content-Type' => 'application/json'}
+        # add class header attributes
+        collect_headers.merge!(self.headers)
+        # add request headers
+        collect_headers.merge!(req_headers)
+      end
+
       def request(method, path, headers = {}, body = "")
-        # collect headers
-        req_headers = {'Content-Type' => 'application/json'}
-        headers.each do |key, value|
-          req_headers[key] = value
-        end
         # request
         connection.request(
           :expects => [200, 201],
           :method => method,
           :path => path,
-          :headers => req_headers,
+          :headers => collect_headers(headers),
           :body => body
         )
       end

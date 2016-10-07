@@ -26,6 +26,7 @@ describe LyraClient do
 
         class LyraClientTestClass < LyraClient::Base
           self.collection_name = 'automations'
+          self.headers = {'test'  => 'test'}
         end
 
         it "should build the collection path with prefix" do
@@ -40,6 +41,15 @@ describe LyraClient do
           expect(LyraClientTestClass.collection_path({limit: 100, page: 1, test: 'test'})).to be == "/automations?limit=100&page=1&test=test"
         end
 
+        describe "mergin headers" do
+
+          it "should merge class headers with the request headers" do
+            headers = LyraClientTestClass.collect_headers({"X-Auth-Token" => 'this_is_a_token'})
+            expect(headers).to eql({"Content-Type"=>"application/json", "test"=>"test", "X-Auth-Token"=>"this_is_a_token"})
+          end
+
+        end
+
       end
 
       describe "find" do
@@ -49,19 +59,15 @@ describe LyraClient do
           self.collection_name = 'automations'
         end
 
-        describe "mergin headers"
-
         describe "all" do
 
-          before(:each) do
-            @elements = [FakeFactory.automation('id' => 1)]
-            Excon.stub({}, {:body => @elements.to_json, :status => 200})
-          end
-
           it "should get all" do
+            elements = [FakeFactory.automation('id' => 1)]
+            Excon.stub({}, {:body => elements.to_json, :status => 200})
+
             all = LyraClientTestFindClass.all({"X-Auth-Token" => 'this_is_a_token'})
             all.each_with_index do |element, index|
-              expect(element.attributes).to be == @elements[index]
+              expect(element.attributes).to be == elements[index]
             end
           end
 
