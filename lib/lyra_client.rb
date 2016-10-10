@@ -94,7 +94,7 @@ module LyraClient
             path = collection_path(options)
             instantiate_collection(request('get', path, headers))
           else
-            path = singelton_path(scope, options)
+            path = singleton_path(scope, options)
             response = request('get', path, headers)
             body = response.data.fetch(:body, "{}") unless response.nil?
             new(response, JSON.parse(body), true)
@@ -105,7 +105,7 @@ module LyraClient
         Collection.new(response).collect! { |record| new(response, record, true) }
       end
 
-      def singelton_path(id, query_options = nil)
+      def singleton_path(id, query_options = nil)
         "#{path_prefix}/#{collection_name}/#{URI.escape(id.to_s)}#{query_string(query_options)}"
       end
 
@@ -153,7 +153,7 @@ module LyraClient
 
       if @persisted
         # update
-
+        update(headers, options)
       else
         # create
         create(headers, options)
@@ -168,7 +168,14 @@ module LyraClient
       self.attributes['id'] = record['id']
     end
 
-    def update
+    def update(headers = {}, options = {})
+      path = self.class.singleton_path(self.attributes['id'], options)
+      self.class.request('put', path, headers, attributes.to_json)
+    end
+
+    def destroy(headers = {}, options = {})
+      path = self.class.singleton_path(self.attributes['id'], options)
+      self.class.request('delete', path, headers)
     end
 
   end
