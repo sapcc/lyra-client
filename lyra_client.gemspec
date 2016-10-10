@@ -12,7 +12,7 @@ Gem::Specification.new do |spec|
   spec.summary       = %q{Ruby client for Lyra.}
   spec.description   = %q{Ruby client for Lyra.}
   spec.homepage      = "https://github.com/sapcc/lyra-client"
-  spec.license       = "MIT"
+  spec.license       = "Apache 2"
 
   # Prevent pushing this gem to RubyGems.org. To allow pushes either set the 'allowed_push_host'
   # to allow pushing to a single host or delete this section to allow pushing to any host.
