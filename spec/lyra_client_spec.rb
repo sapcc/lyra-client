@@ -30,13 +30,13 @@ describe LyraClient do
         end
 
         it "should build the collection path with prefix" do
-          LyraClientTestClass.site = "https://lyra-app/api/v1"
+          LyraClientTestClass.site = "https://lyra-app.com/api/v1"
           expect(LyraClientTestClass.collection_path).to be == "/api/v1/automations"
           expect(LyraClientTestClass.collection_path({limit: 100, page: 1, test: 'test'})).to be == "/api/v1/automations?limit=100&page=1&test=test"
         end
 
         it "should build the collection path without prefix" do
-          LyraClientTestClass.site = "https://lyra-app"
+          LyraClientTestClass.site = "https://lyra-app.com"
           expect(LyraClientTestClass.collection_path).to be == "/automations"
           expect(LyraClientTestClass.collection_path({limit: 100, page: 1, test: 'test'})).to be == "/automations?limit=100&page=1&test=test"
         end
@@ -55,7 +55,7 @@ describe LyraClient do
       describe "find" do
 
         class LyraClientTestFindClass < LyraClient::Base
-          self.site = "https://lyra-app/api/v1"
+          self.site = "https://lyra-app.com/api/v1"
           self.collection_name = 'automations'
         end
 
@@ -143,7 +143,7 @@ describe LyraClient do
     describe "Access to response headers" do
 
       class LyraClientTestCollectionClass < LyraClient::Base
-        self.site = "https://lyra-app/api/v1"
+        self.site = "https://lyra-app.com/api/v1"
         self.collection_name = 'automations'
         self.headers = {"X-Auth-Token" => 'this_is_a_token'}
       end
