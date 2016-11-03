@@ -1,3 +1,8 @@
+#
+# This is a copy of to_query from ActiveSupport project
+# https://github.com/rails/rails/blob/master/activesupport/lib/active_support/core_ext/object/to_query.rb
+#
+
 require 'cgi'
 
 class Object

@@ -1,3 +1,8 @@
+#
+# This is a copy of ThreadsafeAttributes Specs from ActiveResource project
+# https://github.com/rails/activeresource/blob/master/test/threadsafe_attributes_test.rb
+#
+
 require "spec_helper"
 require "lyra_client/threadsafe_attributes"
 

@@ -1,3 +1,8 @@
+#
+# This is a copy of ThreadsafeAttributes from ActiveResource project
+# https://github.com/rails/activeresource/blob/master/lib/active_resource/threadsafe_attributes.rb
+#
+
 module ThreadsafeAttributes
   def self.included(klass)
     klass.extend(ClassMethods)
