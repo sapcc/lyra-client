@@ -165,6 +165,7 @@ module LyraClient
       save(*arguments)
     rescue => e
       self.add_errors(e.response.body)
+      return false
     end
 
     def create(headers = {}, options = {})
