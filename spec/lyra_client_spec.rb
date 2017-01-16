@@ -107,6 +107,17 @@ describe LyraClient do
         expect(automation.attributes['id']).to be == 1
       end
 
+      it "should not save and return errors" do
+        # save
+        Excon.stub({path: "/api/v1/automations", method: 'post'}, {:body => FakeFactory.unprocessble_automation, :status => 422})
+
+        # create
+        automation = LyraClientTestObjMethodsClass.new(nil, FakeFactory.automation(name: 'kaaa'))
+        automation.save!()
+        expect(automation.attributes['id']).to be == nil
+        expect(automation.errors).to be == JSON.parse(FakeFactory.unprocessble_automation)['errors']
+      end
+
       it "should update" do
         # get existing automation
         element = FakeFactory.automation('id' => 1)

@@ -19,4 +19,8 @@ class FakeFactory
     "environment"=>nil}.merge(params)
   end
 
+  def self.unprocessble_automation()
+    {errors: {type: ["can't be blank"]}}.to_json #"{\"errors\":{\"type\":[\"can't be blank\"]}}"
+  end
+
 end

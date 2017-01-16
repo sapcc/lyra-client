@@ -138,13 +138,14 @@ module LyraClient
 
     end
 
-    attr_accessor :attributes
+    attr_accessor :attributes, :errors
     attr_reader :response
 
     def initialize(response = nil, attributes = {}, persisted = false)
       @response = response
       @attributes = attributes
       @persisted = persisted
+      @errors = {}
     end
 
     def save(*arguments)
@@ -158,6 +159,12 @@ module LyraClient
         # create
         create(headers, options)
       end
+    end
+
+    def save!(*arguments)
+      save(*arguments)
+    rescue => e
+      self.add_errors(e.response.body)
     end
 
     def create(headers = {}, options = {})
@@ -176,6 +183,15 @@ module LyraClient
     def destroy(headers = {}, options = {})
       path = self.class.singleton_path(self.attributes['id'], options)
       self.class.request('delete', path, headers)
+    end
+
+    # private
+
+    def add_errors(response)
+      decoded = JSON.parse(response) rescue {}
+      if decoded.kind_of?(Hash) && (decoded.has_key?('errors') || decoded.empty?)
+        self.errors = decoded['errors'] || {}
+      end
     end
 
   end
