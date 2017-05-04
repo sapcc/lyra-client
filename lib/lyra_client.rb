@@ -128,7 +128,7 @@ module LyraClient
       def request(method, path, headers = {}, body = "")
         # request
         connection.request(
-          :expects => [200, 201],
+          :expects => [200, 201, 204],
           :method => method,
           :path => path,
           :headers => collect_headers(headers),
