@@ -83,6 +83,14 @@ describe LyraClient do
             expect(one.attributes).to be == element
           end
 
+          it "should encode the id" do
+            element = FakeFactory.automation('id' => "test test")
+            Excon.stub({path: "/api/v1/automations/test+test", method: 'get'}, {:body => element.to_json, :status => 200})
+
+            one = LyraClientTestFindClass.find("test test", {"X-Auth-Token" => 'this_is_a_token'})
+            expect(one.attributes).to be == element
+          end
+
         end
 
       end
@@ -236,7 +244,7 @@ describe LyraClient do
 
     it "should raise an exception when no 200 or 201" do
       Excon.stub({}, {:body => "Not found", :status => 404})
-      expect { LyraClientTestFindClass.find("1") }.to raise_error
+      expect { LyraClientTestFindClass.find("1") }.to raise_error(Excon::Error::NotFound)
     end
 
   end
