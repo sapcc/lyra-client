@@ -106,7 +106,9 @@ module LyraClient
       end
 
       def singleton_path(id, query_options = nil)
-        "#{path_prefix}/#{collection_name}/#{URI.escape(id.to_s)}#{query_string(query_options)}"
+        # changed URI.scape to CGI.escape as proposed here
+        # https://ruby-doc.org/stdlib-2.7.0/libdoc/uri/rdoc/URI/Escape.html
+        "#{path_prefix}/#{collection_name}/#{CGI.escape(id.to_s)}#{query_string(query_options)}"
       end
 
       def collection_path(query_options = nil)
